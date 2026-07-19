@@ -1,84 +1,142 @@
-const express=require("express");
-const browser=require("./browser");
-const db=require("./database");
+const express = require("express");
+
+const browser = require("./browser");
+
+const database = require("./database");
 
 
-const app=express();
+const db = database.db;
+
+
+const app = express();
 
 
 app.use(express.json());
+
 app.use(express.static("public"));
 
 
-browser.start();
+
+(async()=>{
+
+await database.init();
+
+await browser.start();
+
+})();
 
 
-app.get("/browse",async(req,res)=>{
+
+app.get("/browse", async(req,res)=>{
+
+
+try{
 
 
 let url=req.query.url;
 
 
-if(!url.startsWith("http"))
+if(!url.startsWith("http")){
+
 url="https://"+url;
 
-
-db.run(
-"INSERT INTO history(url) VALUES(?)",
-[url]
-);
+}
 
 
-let html=await browser.open(url);
+
+db.data.history.push({
+
+url:url,
+
+time:new Date()
+
+});
+
+
+await db.write();
+
+
+
+let html = await browser.open(url);
 
 
 res.send(html);
 
 
+
+}catch(e){
+
+res.status(500).send(
+"Browser error: "+e.message
+);
+
+}
+
+
 });
 
 
 
-app.get("/history",(req,res)=>{
 
-db.all(
-"SELECT * FROM history ORDER BY id DESC",
-(err,data)=>res.json(data)
+
+app.get("/history",async(req,res)=>{
+
+
+res.json(
+db.data.history.reverse()
 );
 
 
 });
 
 
-app.get("/bookmarks",(req,res)=>{
 
-db.all(
-"SELECT * FROM bookmarks",
-(err,data)=>res.json(data)
+
+
+
+app.get("/bookmarks",async(req,res)=>{
+
+
+res.json(
+db.data.bookmarks
 );
+
 
 });
 
 
-app.post("/bookmark",(req,res)=>{
 
-db.run(
-"INSERT INTO bookmarks(url) VALUES(?)",
-[req.body.url]
+
+
+
+app.post("/bookmark",async(req,res)=>{
+
+
+db.data.bookmarks.push(
+req.body.url
 );
+
+
+await db.write();
+
 
 res.json({
-ok:true
+success:true
 });
 
+
 });
+
+
 
 
 
 app.listen(8000,()=>{
 
+
 console.log(
-"Koyeb Browser V2 running"
+"Koyeb Browser running on port 8000"
 );
+
 
 });
