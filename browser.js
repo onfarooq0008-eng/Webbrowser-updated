@@ -1,4 +1,4 @@
-const {chromium}=require("playwright");
+const { chromium } = require("playwright");
 
 
 let browser;
@@ -6,46 +6,60 @@ let browser;
 
 async function start(){
 
-browser=await chromium.launch({
+browser = await chromium.launch({
 
-headless:true,
+    headless:true,
 
-args:[
-"--no-sandbox",
-"--disable-dev-shm-usage",
-"--disable-gpu"
-]
+    args:[
+        "--no-sandbox",
+        "--disable-dev-shm-usage",
+        "--disable-gpu",
+        "--single-process"
+    ]
 
 });
 
 }
 
 
+
 async function open(url){
 
-let context=
-await browser.newContext({
 
-storageState:"cookies.json"
+let context = await browser.newContext({
+
+    storageState:"cookies.json"
 
 });
 
 
-let page=await context.newPage();
+let page = await context.newPage();
 
 
 await page.goto(url,{
-waitUntil:"domcontentloaded",
-timeout:30000
+
+    waitUntil:"domcontentloaded",
+
+    timeout:30000
+
 });
 
 
 await context.storageState({
-path:"cookies.json"
+
+    path:"cookies.json"
+
 });
 
 
-return page.content();
+let html = await page.content();
+
+
+await page.close();
+
+
+return html;
+
 
 }
 
