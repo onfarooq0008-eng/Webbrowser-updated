@@ -5,9 +5,6 @@ const browser = require("./browser");
 const database = require("./database");
 
 
-const db = database.db;
-
-
 const app = express();
 
 
@@ -19,11 +16,10 @@ app.use(express.static("public"));
 
 (async()=>{
 
-await database.init();
-
 await browser.start();
 
 })();
+
 
 
 
@@ -44,7 +40,10 @@ url="https://"+url;
 
 
 
-db.data.history.push({
+let db=database.read();
+
+
+db.history.push({
 
 url:url,
 
@@ -53,11 +52,11 @@ time:new Date()
 });
 
 
-await db.write();
+database.write(db);
 
 
 
-let html = await browser.open(url);
+let html=await browser.open(url);
 
 
 res.send(html);
@@ -67,7 +66,7 @@ res.send(html);
 }catch(e){
 
 res.status(500).send(
-"Browser error: "+e.message
+e.message
 );
 
 }
@@ -79,11 +78,15 @@ res.status(500).send(
 
 
 
-app.get("/history",async(req,res)=>{
+
+app.get("/history",(req,res)=>{
+
+
+let db=database.read();
 
 
 res.json(
-db.data.history.reverse()
+db.history.reverse()
 );
 
 
@@ -94,11 +97,14 @@ db.data.history.reverse()
 
 
 
-app.get("/bookmarks",async(req,res)=>{
+app.get("/bookmarks",(req,res)=>{
+
+
+let db=database.read();
 
 
 res.json(
-db.data.bookmarks
+db.bookmarks
 );
 
 
@@ -109,15 +115,18 @@ db.data.bookmarks
 
 
 
-app.post("/bookmark",async(req,res)=>{
+app.post("/bookmark",(req,res)=>{
 
 
-db.data.bookmarks.push(
+let db=database.read();
+
+
+db.bookmarks.push(
 req.body.url
 );
 
 
-await db.write();
+database.write(db);
 
 
 res.json({
@@ -131,12 +140,12 @@ success:true
 
 
 
+
+
 app.listen(8000,()=>{
 
-
 console.log(
-"Koyeb Browser running on port 8000"
+"Koyeb Browser V2 running"
 );
-
 
 });
