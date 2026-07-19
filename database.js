@@ -1,31 +1,45 @@
-const { Low } = require("lowdb");
-const { JSONFile } = require("lowdb/node");
+const fs = require("fs");
+
+const file = "database.json";
 
 
-const adapter = new JSONFile("database.json");
+if (!fs.existsSync(file)) {
 
-
-const db = new Low(adapter,{
-    history: [],
-    bookmarks: []
-});
-
-
-async function init(){
-
-    await db.read();
-
-    db.data ||= {
-        history: [],
-        bookmarks: []
-    };
-
-    await db.write();
+    fs.writeFileSync(
+        file,
+        JSON.stringify({
+            history: [],
+            bookmarks: []
+        })
+    );
 
 }
 
 
+function read(){
+
+    return JSON.parse(
+        fs.readFileSync(file)
+    );
+
+}
+
+
+
+function write(data){
+
+    fs.writeFileSync(
+        file,
+        JSON.stringify(data,null,2)
+    );
+
+}
+
+
+
 module.exports = {
-    db,
-    init
+
+    read,
+    write
+
 };
