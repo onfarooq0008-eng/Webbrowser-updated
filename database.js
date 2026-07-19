@@ -1,26 +1,31 @@
-const sqlite3=require("sqlite3").verbose();
-
-const db=new sqlite3.Database("./koyeb-browser.db");
-
-
-db.serialize(()=>{
-
-db.run(`
-CREATE TABLE IF NOT EXISTS history(
-id INTEGER PRIMARY KEY,
-url TEXT,
-time DATETIME DEFAULT CURRENT_TIMESTAMP
-)`);
+const { Low } = require("lowdb");
+const { JSONFile } = require("lowdb/node");
 
 
-db.run(`
-CREATE TABLE IF NOT EXISTS bookmarks(
-id INTEGER PRIMARY KEY,
-url TEXT
-)`);
+const adapter = new JSONFile("database.json");
 
 
+const db = new Low(adapter,{
+    history: [],
+    bookmarks: []
 });
 
 
-module.exports=db;
+async function init(){
+
+    await db.read();
+
+    db.data ||= {
+        history: [],
+        bookmarks: []
+    };
+
+    await db.write();
+
+}
+
+
+module.exports = {
+    db,
+    init
+};
