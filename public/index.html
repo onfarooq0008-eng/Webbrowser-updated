@@ -4,11 +4,11 @@
 
 <head>
 
-<meta name="viewport"
-content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 
-<link rel="stylesheet"
-href="style.css">
+<title>Koyeb Browser</title>
+
+<link rel="stylesheet" href="style.css">
 
 </head>
 
@@ -16,31 +16,40 @@ href="style.css">
 <body>
 
 
-<header>
+<div class="top">
+
 
 <button onclick="back()">←</button>
 
 
-<input id="url"
-placeholder="Search or enter URL">
+<input id="url" placeholder="Search or enter website">
 
 
 <button onclick="go()">GO</button>
 
 
-</header>
+</div>
 
 
-<div class="tabs">
 
-<button onclick="newtab()">
-+ Tab
+<div class="menu">
+
+<button onclick="historyPage()">
+History
 </button>
+
+
+<button onclick="bookmark()">
+Bookmark
+</button>
+
 
 </div>
 
 
+
 <iframe id="page"></iframe>
+
 
 
 <script src="app.js"></script>
